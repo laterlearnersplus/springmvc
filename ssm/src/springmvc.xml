@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- 包扫描 ，将该包下加了@Component的放进IOC容器-->
+	<context:component-scan base-package="com.sxt.controller"></context:component-scan>
+
+	<!-- 表示使用新的处理器映射和处理器适配器 -->
+	<mvc:annotation-driven conversion-service="conversionService">
+		<mvc:message-converters>
+			<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="supportedMediaTypes" >
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- 视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 配置逻辑视图的前缀 -->
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<!-- 配置逻辑视图的后缀 -->
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- 转换器配置 -->
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<!--自定义的转换器-->
+				<bean class="com.sxt.converter.DateConverter" />
+			</set>
+		</property>
+	</bean>
+
+	<!--index.jsp页面的隐射  可以通过index.html 访问到index.jsp-->
+	<mvc:view-controller path="index.html" view-name="index"></mvc:view-controller>
+	<mvc:view-controller path="index" view-name="index"></mvc:view-controller>
+	<mvc:view-controller path="/" view-name="redirect:/index.html"></mvc:view-controller>
+
+	<mvc:view-controller path="main.html" view-name="main"></mvc:view-controller>
+	<mvc:view-controller path="cender.html" view-name="cender"></mvc:view-controller>
+
+
+	<!--静态资源的隐射-->
+	<mvc:resources mapping="/assets/**" location="/assets/"></mvc:resources>
+
+	<!--异常错误页面-->
+	<mvc:resources mapping="/error/**" location="/WEB-INF/jsp/error/" />
+
+
+<!--&lt;!&ndash;文件上传解析器&ndash;&gt;-->
+<!--	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">-->
+<!--&lt;!&ndash;设置文件上传大小&ndash;&gt;-->
+<!--		<property name="maxUploadSize" value="999999"></property>-->
+<!--	</bean>-->
+
+<!--配置异常处理器-->
+<bean id="customHandlerException" class="com.sxt.handler.CustomHandlerException"></bean>
+
+</beans>

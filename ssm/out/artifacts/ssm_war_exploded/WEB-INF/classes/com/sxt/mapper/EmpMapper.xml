@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxt.mapper.EmpMapper" >
+
+	<resultMap type="emp" id="empResultMap">
+		<result property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="time" column="time"/>
+		<result property="sal" column="sal"/>
+		<association property="dept" javaType="dept">
+			<id property="id" column="deptId"/>
+			<result property="id" column="deptId"/>
+			<result property="name" column="deptName"/>
+		</association>
+	</resultMap>
+
+	<resultMap type="emp" id="empResultMap2">
+		<result property="id" column="empId"/>
+		<result property="name" column="empName"/>
+		<result property="gender" column="gender"/>
+		<association property="dept" select="cn.kgc.mapper.DeptMapper.queryById" column="dept_id"></association>
+	</resultMap>
+
+	<select id="query"  parameterType="com.sxt.dto.EmpDto" resultMap="empResultMap">
+		SELECT e.id as id,e.name as name,e.time as time,e.sal as sal,d.id as deptId,d.name as deptName
+		FROM emp e
+		LEFT JOIN dept d
+		ON e.deptId=d.id
+		WHERE 1=1
+		<if test="id!=0 and id!=null">
+			AND e.id=#{id}
+		</if>
+		<if test="name!=null and name!=''">
+			AND e.name=#{name}
+		</if>
+		<if test="deptId!=99 and deptId!=null and deptId!=0">
+			AND deptId=#{deptId}
+		</if>
+	</select>
+
+	<select id="queryById" parameterType="int" resultMap="empResultMap2">
+		SELECT * FROM emp WHERE id=#{id}
+	</select>
+
+	<update id="update" parameterType="com.sxt.entity.Emp">
+		UPDATE emp SET name=#{name},time=#{time},sal=#{sal},deptId=#{dept.id} WHERE id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		DELETE FROM emp WHERE id=#{id}
+	</delete>
+
+	<insert id="add" parameterType="com.sxt.entity.Emp">
+		INSERT INTO emp(name,time,sal,deptId) VALUES(#{name},#{time},#{sal},#{dept.id})
+	</insert>
+</mapper>

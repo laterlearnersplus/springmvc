@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 将自定义ream交给spring来管理 -->
+	<bean id="myRealm" class="com.sxt.realm.UserRealm">
+		<property name="credentialsMatcher">
+			<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+				<!-- MD5加密   -->
+				<property name="hashAlgorithmName" value="MD5"></property>
+				<!-- 迭代1024次 -->
+				<property name="hashIterations" value="1024"></property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- 定义securityManager-->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="myRealm"></property>
+	</bean>
+
+	<!-- shiro与spring整合 -->
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager"/>
+	</bean>
+
+	<!-- annotation配置结束 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"/>
+		<!--登录页面-->
+		<property name="loginUrl" value="/"/>
+		<!--  <property name="unauthorizedUrl" value="/unauthorized"></property> -->
+		<!--配置哪些页面需要受保护以及访问这些页面需要的权限
+			1、anon  可以匿名访问
+			2、authc 必须登录后才能访问的页面
+			3、logout 注销登陆
+		-->
+		<property name="filterChainDefinitions">
+			<value>
+				/ = anon
+				/assets/** =anon
+				/index.html = anon
+				/login.html = anon
+				/unauthorized = anon
+				/logout.html = logout
+				/** = authc
+			</value>
+		</property>
+	</bean>
+
+</beans>
